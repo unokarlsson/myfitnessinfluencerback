@@ -1,6 +1,7 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const mysql = require('mysql');
+const express     = require('express');
+const bodyParser  = require('body-parser');
+const mysql       = require('mysql');
+const cors        = require('cors');
 
 const port = 3001;
 
@@ -22,6 +23,8 @@ const myFitnessRemote = ({
 let connection = mysql.createConnection(myFitnessRemote);
 
 let app = express();
+
+app.use(cors());
 app.use(bodyParser.json());
 
 
