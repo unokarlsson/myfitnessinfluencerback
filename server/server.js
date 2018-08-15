@@ -1,3 +1,11 @@
+require('./config/config.js')
+
+const env = process.env.NODE_ENV || 'dev';
+if(env==='dev' || env==='docker-dev' /* || production */) {
+    const {setupProductionData} = require('./data/production');
+    setupProductionData();
+}
+
 const express     = require('express');
 const bodyParser  = require('body-parser');
 const cors        = require('cors');
@@ -5,24 +13,16 @@ const cors        = require('cors');
 const mysql       = require('mysql');
 const util        = require('util');
 
-const port = 3001;
-
-const vocabularyRemote = {
-    host     : '192.168.0.152',
-    user     : 'root',
-    password : 'ropa+1',
-    database : 'Vocabulary'
-};   
-
-const myFitnessRemote = ({
-    host     : '192.168.0.152',
-    user     : 'root',
-    password : 'ropa+1',
-    database : 'myfitnessdb'
+const poolConfig = ({
+    host     : process.env.SQL_HOST,
+    user     : process.env.SQL_USER,
+    password : process.env.SQL_PASSWORD,
+    database : process.env.SQL_DATABASE
 });
+console.log(`poolConfig = ${JSON.stringify(poolConfig,undefined,2)}`);
 
-let mySqlPool = mysql.createPool(myFitnessRemote);
-mySqlPool.query = util.promisify(mySqlPool.query);
+let mySqlPool    = mysql.createPool(poolConfig);
+mySqlPool.query  = util.promisify(mySqlPool.query);
 
 let app = express();
 app.use(cors());
@@ -85,7 +85,6 @@ app.post('/users', async (request,response) => {
     const name = request.body.name;
     const userid = request.body.userid;
     const password = request.body.password;
-
     // console.log('name',name);
     // console.log('userid',userid);
     // console.log('password',password);
@@ -143,9 +142,11 @@ app.delete('/users/:id', async (request,response) => {
 });
 
 
-app.listen(port,() => {
-    console.log(`Started on ${port}`);
+app.listen(process.env.HTTP_PORT,() => {
+    console.log(`Started on ${process.env.HTTP_PORT}`);
 });
+
+module.exports = {app};
 
 /*
 INSERT INTO `myfitnessdb`.`exercise` (`id`, `name`, `bodypartid`) VALUES ('1', 'Bicep curl', '1');

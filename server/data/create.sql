@@ -66,33 +66,44 @@ VALUES (33,'Pull Down - Machine','pullDown-machine.jpg','TODO',4);
 
 /* Ab */
 INSERT INTO `exercise` (`id`,`name`, `imgName`,`description`,`bodypartId`) 
-VALUES (61,'Crunches - Bodyweight','crunches-bodyweight.jpg','TODO',5);
+VALUES (41,'Crunches - Bodyweight','crunches-bodyweight.jpg','TODO',5);
 
 INSERT INTO `exercise` (`id`,`name`, `imgName`,`description`,`bodypartId`) 
-VALUES (62,'Ab Rotation - Medicin Ball','abRotation-medicinball.jpg','TODO',5);
+VALUES (42,'Ab Rotation - Medicin Ball','abRotation-medicinball.jpg','TODO',5);
 
 INSERT INTO `exercise` (`id`,`name`, `imgName`,`description`,`bodypartId`) 
-VALUES (63,'Ab Raises - Machine','abRaises-machine.jpg','TODO',5);
+VALUES (43,'Ab Raises - Machine','abRaises-machine.jpg','TODO',5);
 
 /* Glute */
 INSERT INTO `exercise` (`id`,`name`, `imgName`,`description`,`bodypartId`) 
-VALUES (41,'Back Extention - Bodyweight','backExtention-bodyweight.jpg','TODO',6);
+VALUES (51,'Back Extention - Bodyweight','backExtention-bodyweight.jpg','TODO',6);
 
 INSERT INTO `exercise` (`id`,`name`, `imgName`,`description`,`bodypartId`) 
-VALUES (42,'Hip Thrust - Barebell','hipThrust-barebell.jpg','TODO',6);
+VALUES (52,'Hip Thrust - Barebell','hipThrust-barebell.jpg','TODO',6);
 
 INSERT INTO `exercise` (`id`,`name`, `imgName`,`description`,`bodypartId`) 
-VALUES (43,'Deadlift - Barebell','deadLift-barebell.jpg','TODO',6);
+VALUES (53,'Deadlift - Barebell','deadLift-barebell.jpg','TODO',6);
 
 /* Leg */
 INSERT INTO `exercise` (`id`,`name`, `imgName`,`description`,`bodypartId`) 
-VALUES (51,'Squat - Bodyweight','squat-bodyweight.jpg','TODO',7);
+VALUES (61,'Squat - Bodyweight','squat-bodyweight.jpg','TODO',7);
 
 INSERT INTO `exercise` (`id`,`name`, `imgName`,`description`,`bodypartId`) 
-VALUES (52,'Lunges - Bodyweight','lunges-bodyweight.jpg','TODO',7);
+VALUES (62,'Lunges - Bodyweight','lunges-bodyweight.jpg','TODO',7);
 
 INSERT INTO `exercise` (`id`,`name`, `imgName`,`description`,`bodypartId`) 
-VALUES (53,'Leg Extentions - Machine','legExtention-machine.jpg','TODO',7);
+VALUES (63,'Leg Extentions - Machine','legExtention-machine.jpg','TODO',7);
+
+
+/* USER */
+CREATE TABLE `user` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(45) NOT NULL,
+  `userid` varchar(45) NOT NULL,
+  `password` varchar(45) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `userid_UNIQUE` (`userid`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
 
 
 

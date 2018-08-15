@@ -1,0 +1,31 @@
+version: '3.1'
+services:
+  mysql:
+    image: mysql
+    command:
+      --default-authentication-plugin=mysql_native_password
+    restart: always
+    ports:
+      - 3306:3306
+    environment:  # Use root/example as user/password
+      MYSQL_ROOT_PASSWORD: example
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+  
+  fitness:
+    image: "node:8"
+    restart: always
+    user: "node"
+    working_dir: /home/node/app
+    environment:
+      - NODE_ENV=docker-dev
+    volumes:
+      - ./:/home/node/app
+    ports:
+      - 3002:3002
+    command: "npm docker-start"
+

@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "node server/server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "export NODE_ENV=test || SET \"NODE_ENV=test\" && mocha server/**/*.test.js",
+    "docker-start": "node server/server.js",
+    "docker-test": "mocha server/**/*.test.js"
   },
   "author": "",
   "license": "ISC",
@@ -13,6 +15,12 @@
     "body-parser": "^1.18.3",
     "cors": "^2.8.4",
     "express": "^4.16.3",
-    "mysql": "^2.15.0"
+    "mysql": "^2.15.0",
+    "mysql2": "^1.6.1"
+  },
+  "devDependencies": {
+    "expect": "^23.5.0",
+    "mocha": "^5.2.0",
+    "supertest": "^3.1.0"
   }
 }
