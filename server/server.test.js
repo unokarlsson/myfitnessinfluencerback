@@ -3,10 +3,18 @@ const expect  = require('expect');
 
 const {setupTestData,bodyparts,exercises} = require('./data/test')
 
+const setup = async () => {
+    try {
+        await setupTestData();
+        console.log('setup: Done');
+    } catch(error) {
+        console.log('setup: Failed, error = ',error);
+    }
+};
+
 const {app}   = require('./server');
 
-before(setupTestData);
-// beforeEach(setupTestData);
+before(setup);
 
 describe('GET /bodyparts',() => {
 

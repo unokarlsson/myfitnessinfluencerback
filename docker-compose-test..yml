@@ -1,10 +1,12 @@
 version: '3.1'
+
+# Specify docker-compose file with: -f <compose-file.yml>
+
 services:
   mysql:
     image: mysql
     command:
       --default-authentication-plugin=mysql_native_password
-    restart: always
     ports:
       - 3306:3306
     environment:  # Use root/example as user/password
@@ -17,9 +19,7 @@ services:
       - 8080:8080
   
   fitness:
-    # TODO: How to wait for the mysql service?
     image: "node:8"
-    restart: always
     user: "node"
     working_dir: /home/node/app
     environment:
@@ -28,5 +28,7 @@ services:
       - ./:/home/node/app
     ports:
       - 3002:3003
-    command: "npm docker-test"
+    depends_on:
+      - mysql
+    command: ["./wait-for-it.sh","mysql:3306","--","npm","run-script","docker-test"]
 
