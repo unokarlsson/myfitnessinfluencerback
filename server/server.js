@@ -59,8 +59,10 @@ app.get('/bodyparts/:id/exercises', async (request, response) => {
     let id = request.params.id;
     try {
         const rows = await mySqlPool.query(`SELECT * FROM exercise WHERE bodypartId=${id}`);
-        response.send({rows});
-    } catch(error) {
+        if(rows.length===0) {
+            return response.status(400).send();
+        }
+        response.send({rows});    } catch(error) {
         console.log(error);
         response.status(400).send();
     }
@@ -71,6 +73,9 @@ app.get('/exercises/bodypart/:id', async (request, response) => {
     let id = request.params.id;
     try {
         const rows = await mySqlPool.query(`SELECT * FROM exercise WHERE bodypartId=${id}`);
+        if(rows.length===0) {
+            return response.status(400).send();
+        }
         response.send({rows});
     } catch(error) {
         console.log(error);
