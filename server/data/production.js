@@ -1,6 +1,6 @@
 
-const {BODYPART_DEFINITION,EXERCISE_DEFINITION}                                        = require('./definition');
-const {promisePool,promisePoolDatabase,setupDatabase,setupTablesAndData,setupData}     = require('./database');
+const {BODYPART_DEF,EXERCISE_DEF,USER_DEF,TOKEN_DEF}   = require('./definition');
+const {setupDatabase,setupTablesAndData}               = require('./database');
 
 const bodyparts = [{
     id: 1,
@@ -158,32 +158,35 @@ const exercises = [
     name: 'Squat - Bodyweight',
     imgName: 'squat-bodyweight.jpg',
     description: 'TODO',
-    bodypartId: 5
+    bodypartId: 7
 },{
     id: 62,
     name: 'Lunges - Bodyweight',
     imgName: 'lunges-bodyweight.jpg',
     description: 'TODO',
-    bodypartId: 5
+    bodypartId: 7
 },{
     id: 63,
     name: 'Leg Extentions - Machine',
     imgName: 'legExtention-machine.jpg',
     description: 'TODO',
-    bodypartId: 5
+    bodypartId: 7
 }];
+
+const users = [];
+
+const tokens  = [];
 
 const setupProductionData = async () => {
     // TODO: Only setup production data if database don't exist!
     try {
-        await setupData(promisePool,process.env.SQL_DATABASE,promisePoolDatabase,'bodypart',BODYPART_DEFINITION,bodyparts,'exercise',EXERCISE_DEFINITION,exercises);
+        await setupDatabase(process.env.SQL_DATABASE);
+        await setupTablesAndData('bodypart',BODYPART_DEF,bodyparts,'exercise',EXERCISE_DEF,exercises,'user',USER_DEF,users,'token',TOKEN_DEF,tokens);
         console.log('setupProductionData: Setup production data done.');
     } catch(error) {
         console.log('setupProductionData: Setup production data failed, error = ',error);
     }
 }
-
-// setupProductionData();
 
 module.exports = {setupProductionData};
 
@@ -193,3 +196,5 @@ module.exports = {setupProductionData};
 // setupDatabase(promisePool,process.env.SQL_DATABASE);
 // setupTablesAndData(promisePoolDatabase,'bodypart',BODYPART_DEFINITION,bodyparts,'exercise',EXERCISE_DEFINITION,exercises);
 // setupData(promisePool,process.env.SQL_DATABASE,promisePoolDatabase,'bodypart',BODYPART_DEFINITION,bodyparts,'exercise',EXERCISE_DEFINITION,exercises);
+
+// setupProductionData();

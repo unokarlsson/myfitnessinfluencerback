@@ -4,6 +4,8 @@ const mysql2   = require('mysql2');
 
 const {existDatabase,createDatabase,dropDatabase,createTable,dropTable,populateTable} = require('./databaseCommon');
 
+// ================== begin databaseSetupPool.js ===================
+//
 // DROP/CREATE DATABASE CONFIG & POOL
 const config = ({
     host     : process.env.SQL_HOST,
@@ -28,40 +30,55 @@ console.log(`configDatabase = ${JSON.stringify(configDatabase,undefined,2)}`);
 const poolDatabase         = mysql2.createPool(configDatabase);
 const promisePoolDatabase  = poolDatabase.promise();
 
+//
+// ================== end databaseSetupPool.js ===================
 
-const setupDatabase = async (pool,databaseName) => {
+
+const setupDatabase = async (databaseName) => {
     try {
-        await dropDatabase(pool,databaseName);
-        await createDatabase(pool,databaseName);
+        await dropDatabase(promisePool,databaseName);
+        await createDatabase(promisePool,databaseName);
         console.log('setupDatabase: Execute dropDatabase, createDatabase done.');
     } catch(error) {
         console.log('setupDatabase: Execute dropDatabase, createDatabase failed, error = ',error);
     }
  };
 
- const setupTablesAndData = async (pool,bodypartName,bodypartDef,bodyparts,exerciseName,exerciseDef,exercises) => {
+ const setupTablesAndData = async (bodypartName,bodypartDef,bodyparts,exerciseName,exerciseDef,exercises,userName,userDef,users,tokenName,tokenDef,tokens) => {
     try {
-        await dropTable(pool,exerciseName);
-        await dropTable(pool,bodypartName);
-        await createTable(pool,bodypartName,bodypartDef);
-        await createTable(pool,exerciseName,exerciseDef);
-        await populateTable(pool,bodypartName,bodyparts);
-        await populateTable(pool,exerciseName,exercises);
+        await dropTable(promisePoolDatabase,exerciseName);
+        await dropTable(promisePoolDatabase,bodypartName);
+
+        await dropTable(promisePoolDatabase,tokenName);
+        await dropTable(promisePoolDatabase,userName);
+
+        await createTable(promisePoolDatabase,bodypartName,bodypartDef);
+        await createTable(promisePoolDatabase,exerciseName,exerciseDef);
+
+        await createTable(promisePoolDatabase,userName,userDef);
+        await createTable(promisePoolDatabase,tokenName,tokenDef);
+
+        await populateTable(promisePoolDatabase,bodypartName,bodyparts);
+        await populateTable(promisePoolDatabase,exerciseName,exercises);
+
+        await populateTable(promisePoolDatabase,userName,users);
+        await populateTable(promisePoolDatabase,tokenName,tokens);
+        
         console.log('setupTablesAndData: Execute dropTables, createTables and populateTable done.');
     } catch(error) {
         console.log('setupTablesAndData: Execute dropTables, createTables and populateTable failed, error = ',error);
     }
 };
 
-const setupData = async (pool,databaseName,poolDatabase,bodypartName,bodypartDef,bodyparts,exerciseName,exerciseDef,exercises) => {
-    try {
-        await setupDatabase(pool,databaseName);
-        await setupTablesAndData(poolDatabase,bodypartName,bodypartDef,bodyparts,exerciseName,exerciseDef,exercises);
-        console.log('setupData: Execute setupDatabase, setupTablesAndData done.');
-    } catch (error) {
-        console.log('setupData: Execute setupDatabase, setupTablesAndData failed, error = ',error);
-    }
-};
+// const setupData = async (databaseName,bodypartName,bodypartDef,bodyparts,exerciseName,exerciseDef,exercises) => {
+//     try {
+//         await setupDatabase(databaseName);
+//         await setupTablesAndData(bodypartName,bodypartDef,bodyparts,exerciseName,exerciseDef,exercises);
+//         console.log('setupData: Execute setupDatabase, setupTablesAndData done.');
+//     } catch (error) {
+//         console.log('setupData: Execute setupDatabase, setupTablesAndData failed, error = ',error);
+//     }
+// };
 
-module.exports = {promisePool,promisePoolDatabase,setupDatabase,setupTablesAndData,setupData};
+module.exports = {setupDatabase,setupTablesAndData};
 

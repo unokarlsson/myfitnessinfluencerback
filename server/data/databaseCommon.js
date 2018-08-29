@@ -40,22 +40,24 @@ const dropTable = async (poolSql,tableName) => {
 };
 
 const populateTable = async (poolSql,tableName,data) => {
-    const columns = Object.keys(data[0]).join(',');
-    const sqlInsert = `INSERT INTO ${tableName} (${columns})  VALUES ?`;
-    console.log('sqlInsert',sqlInsert);
-
-    let items = [];
-    for(i=0;i<data.length;i++) {
-        const item = Object.values(data[i]);
-        items[i] = item;
-    }
-    console.log('items',items);
-
-    try {
-        let result = await poolSql.query(sqlInsert,[items]);
-        console.log(`result = ${JSON.stringify(result,undefined,2)}`);
-    } catch(error) {
-        console.log(`populateBodyparts: Failed!, error = ${error}!`);
+    if(data.length>0) {
+        const columns = Object.keys(data[0]).join(',');
+        const sqlInsert = `INSERT INTO ${tableName} (${columns})  VALUES ?`;
+        console.log('sqlInsert',sqlInsert);
+    
+        let items = [];
+        for(i=0;i<data.length;i++) {
+            const item = Object.values(data[i]);
+            items[i] = item;
+        }
+        console.log('items',items);
+    
+        try {
+            let result = await poolSql.query(sqlInsert,[items]);
+            console.log(`result = ${JSON.stringify(result,undefined,2)}`);
+        } catch(error) {
+            console.log(`populateBodyparts: Failed!, error = ${error}!`);
+        }
     }
 }
 

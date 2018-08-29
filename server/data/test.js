@@ -1,6 +1,6 @@
 
-const {BODYPART_DEFINITION,EXERCISE_DEFINITION}                                        = require('./definition');
-const {promisePool,promisePoolDatabase,setupDatabase,setupTablesAndData,setupData}     = require('./database');
+const {BODYPART_DEF,EXERCISE_DEF,USER_DEF,TOKEN_DEF}  = require('./definition');
+const {setupDatabase,setupTablesAndData}              = require('./database');
 
 const bodyparts = [{
     id: 1,
@@ -36,9 +36,26 @@ const exercises = [{
     bodypartId: 2
 }];
 
+const users = [{
+    username: 'Uno',
+    password: 'passwd1',
+    email:    'mail@uno.com'
+},{
+    username: 'Alexandra',
+    password: 'passwd2',
+    email:    'mail@alexandra.com'
+}];
+
+const tokens  = [{
+    access: 'auth',
+    token:  'ldksfjkldf.94832w9w8743.)(/&(#¤',
+    userid: 1
+}];
+
 const setupTestData = async () => {
     try {
-        await setupData(promisePool,process.env.SQL_DATABASE,promisePoolDatabase,'bodypart',BODYPART_DEFINITION,bodyparts,'exercise',EXERCISE_DEFINITION,exercises);
+        await setupDatabase(process.env.SQL_DATABASE);
+        await setupTablesAndData('bodypart',BODYPART_DEF,bodyparts,'exercise',EXERCISE_DEF,exercises,'user',USER_DEF,users,'token',TOKEN_DEF,tokens);
         console.log('setupTestData: Setup test data done.');
     } catch(error) {
         console.log('setupTestData: Setup test data failed, error = ',error);
