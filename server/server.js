@@ -93,7 +93,7 @@ app.get('/exercises/bodypart/:id', async (request, response) => {
 app.post('/users', async (request,response) => {
     const username = request.body.username; // Must be at least 2 characters
     const password = request.body.password; // Must be at least 4 characters
-    const email    =  request.body.email;
+    const email    = request.body.email;
     const access   = "auth";
 
     if(username.length<2) {
@@ -205,9 +205,16 @@ app.get('/workouts', authenticate, async (request,response) => {
 
 app.post('/workouts', authenticate, async (request,response) => {
     console.log('Running POST /workouts');
+    const name         = request.body.name;
+    const description  = request.body.description;
+    const exercieses   = request.body. exercises;
+    console.log('name=',name);
+    console.log('description=',description);
+    console.log('exercieses=',exercieses);
+
     try {
-        await authenticate(request,response,mySqlPool);
         const user = request.user;
+
 
         // TODO: Method specific things!
 
@@ -329,22 +336,3 @@ app.listen(process.env.HTTP_PORT,() => {
 });
 
 module.exports = {app};
-
-
-// const mysql       = require('mysql');
-// const util        = require('util');
-// const poolConfig = ({
-//     host     : process.env.SQL_HOST,
-//     user     : process.env.SQL_USER,
-//     password : process.env.SQL_PASSWORD,
-//     database : process.env.SQL_DATABASE
-// });
-// console.log(`poolConfig = ${JSON.stringify(poolConfig,undefined,2)}`);
-
-// let mySqlPool    = mysql.createPool(poolConfig);
-// mySqlPool.query  = util.promisify(mySqlPool.query);
-/*
-INSERT INTO `myfitnessdb`.`exercise` (`id`, `name`, `bodypartid`) VALUES ('1', 'Bicep curl', '1');
-INSERT INTO `myfitnessdb`.`exercise` (`id`, `name`, `bodypartid`) VALUES ('2', 'Chins', '2');
-INSERT INTO `myfitnessdb`.`exercise` (`id`, `name`, `bodypartid`) VALUES ('3', 'Squat', '3');
-*/ 
