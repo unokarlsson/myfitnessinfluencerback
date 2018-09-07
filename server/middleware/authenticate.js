@@ -8,7 +8,7 @@ const authenticate = async (request,response,next) => {
 
     try {
         verifyAuthToken(token);
-        let rows = await mySqlPool.query(`SELECT user.id as id,username,email from user,token WHERE token='${token}' AND token.userid=user.id`);
+        let rows = await mySqlPool.query(`SELECT user.id as id,username,email FROM user,token WHERE token='${token}' AND token.userid=user.id`);
         console.log('rows=',rows);
         if(rows.length===0) {
             throw `User not found, token '${token }'!`; 

@@ -44,8 +44,16 @@ const setupDatabase = async (databaseName) => {
     }
  };
 
- const setupTablesAndData = async (bodypartName,bodypartDef,bodyparts,exerciseName,exerciseDef,exercises,userName,userDef,users,tokenName,tokenDef,tokens) => {
+ const setupTablesAndData = async (bodypartName,bodypartDef,bodyparts,
+                                exerciseName,exerciseDef,exercises,
+                                userName,userDef,users,
+                                tokenName,tokenDef,tokens,
+                                workoutName,workoutDef,workouts,
+                                workoutExerciseName,workoutExerciseDef,workoutExercises) => {
     try {
+        await dropTable(promisePoolDatabase,workoutExerciseName);
+        await dropTable(promisePoolDatabase,workoutName);
+
         await dropTable(promisePoolDatabase,exerciseName);
         await dropTable(promisePoolDatabase,bodypartName);
 
@@ -58,11 +66,17 @@ const setupDatabase = async (databaseName) => {
         await createTable(promisePoolDatabase,userName,userDef);
         await createTable(promisePoolDatabase,tokenName,tokenDef);
 
+        await createTable(promisePoolDatabase,workoutName,workoutDef);
+        await createTable(promisePoolDatabase,workoutExerciseName,workoutExerciseDef);
+
         await populateTable(promisePoolDatabase,bodypartName,bodyparts);
         await populateTable(promisePoolDatabase,exerciseName,exercises);
 
         await populateTable(promisePoolDatabase,userName,users);
         await populateTable(promisePoolDatabase,tokenName,tokens);
+
+        await populateTable(promisePoolDatabase,workoutName,workouts);
+        await populateTable(promisePoolDatabase,workoutExerciseName,workoutExercises);
         
         console.log('setupTablesAndData: Execute dropTables, createTables and populateTable done.');
     } catch(error) {

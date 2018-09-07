@@ -1,3 +1,6 @@
+//=====================================
+// BODYPART & EXERCISE
+//=====================================
 
 const BODYPART_DEF =
 "CREATE TABLE `bodypart` ( \
@@ -16,23 +19,11 @@ const EXERCISE_DEF =
     PRIMARY KEY (`id`), \
     CONSTRAINT `bodypartId` FOREIGN KEY (`bodypartId`) REFERENCES `bodypart` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION \
   ) ENGINE=InnoDB DEFAULT CHARSET=latin1;";
+  //   INDEX exercise_bodypartid_idx (bodypartId ASC), \
 
 //=====================================
-// USER
+// USER & TOKEN
 //=====================================
-
-/* From  SQL workbench
-CREATE TABLE `user` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `username` varchar(32) NOT NULL,
-  `password` varchar(512) NOT NULL,
-  `email` varchar(256) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `username_UNIQUE` (`username`),
-  UNIQUE KEY `password_UNIQUE` (`password`),
-  UNIQUE KEY `email_UNIQUE` (`email`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-*/
 
 const USER_DEF =
 "CREATE TABLE user ( \
@@ -42,30 +33,45 @@ const USER_DEF =
   email varchar(256) NOT NULL, \
   PRIMARY KEY (id), \
   UNIQUE KEY username_UNIQUE (username ASC), \
-  UNIQUE KEY password_UNIQUE (password ASC), \
   UNIQUE KEY email_UNIQUE (email));";
-
-/* From  SQL workbench
-CREATE TABLE `token` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `access` varchar(16) NOT NULL,
-  `token` varchar(512) NOT NULL,
-  `userid` int(11) NOT NULL,
-  PRIMARY KEY (`id`),
-  CONSTRAINT `userid` FOREIGN KEY (`id`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-*/
 
 const TOKEN_DEF =
 "CREATE TABLE token ( \
   id INT NOT NULL AUTO_INCREMENT, \
   access VARCHAR(16) NOT NULL, \
   token VARCHAR(512) NOT NULL, \
-  userid INT NULL, \
+  userid INT NOT NULL, \
   PRIMARY KEY (id), \
-  CONSTRAINT userid FOREIGN KEY (id) REFERENCES user (id) ON DELETE NO ACTION ON UPDATE NO ACTION \
+  CONSTRAINT token_userid FOREIGN KEY (userid) REFERENCES user (id) ON DELETE NO ACTION ON UPDATE NO ACTION \
 );";
-  
+//   INDEX token_userid_idx (userid ASC), \
 
 
-module.exports = {BODYPART_DEF,EXERCISE_DEF,USER_DEF,TOKEN_DEF};
+//=====================================
+// WORKOUT
+//=====================================
+
+const WORKOUT_DEF = 
+"CREATE TABLE workout (  \
+  id INT NOT NULL AUTO_INCREMENT, \
+  name VARCHAR(32) NOT NULL, \
+  description VARCHAR(256) NOT NULL, \
+  userid INT NOT NULL, \
+  PRIMARY KEY (id), \
+  INDEX workout_userid_idx (userid ASC), \
+  CONSTRAINT workout_userid FOREIGN KEY (userid) REFERENCES user (id) ON DELETE NO ACTION ON UPDATE NO ACTION \
+ );";
+
+ const WORKOUT_EXERCISE_DEF = 
+ "CREATE TABLE workout_exercise (  \
+  workoutid INT NOT NULL,  \
+  exerciseid INT NOT NULL,  \
+  INDEX workout_excercise_workoutid_idx (workoutid ASC),  \
+  INDEX workout_exercise_exerciseid_idx (exerciseid ASC),  \
+  PRIMARY KEY (workoutid, exerciseid),  \
+  CONSTRAINT workout_exercise_workoutid FOREIGN KEY (workoutid) REFERENCES workout (id) ON DELETE NO ACTION ON UPDATE NO ACTION,  \
+  CONSTRAINT workout_exercise_exerciseid FOREIGN KEY (exerciseid) REFERENCES exercise (id) ON DELETE NO ACTION ON UPDATE NO ACTION  \
+  );";
+
+
+module.exports = {BODYPART_DEF,EXERCISE_DEF,USER_DEF,TOKEN_DEF,WORKOUT_DEF,WORKOUT_EXERCISE_DEF};

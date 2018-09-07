@@ -1,6 +1,6 @@
 
-const {BODYPART_DEF,EXERCISE_DEF,USER_DEF,TOKEN_DEF}   = require('./definition');
-const {setupDatabase,setupTablesAndData}               = require('./database');
+const {BODYPART_DEF,EXERCISE_DEF,USER_DEF,TOKEN_DEF,WORKOUT_DEF,WORKOUT_EXERCISE_DEF}  = require('./definition');
+const {setupDatabase,setupTablesAndData}  = require('./database');
 
 const bodyparts = [{
     id: 1,
@@ -177,11 +177,20 @@ const users = [];
 
 const tokens  = [];
 
+const workouts  = [];
+
+const workoutExcercises  = [];
+
 const setupProductionData = async () => {
     // TODO: Only setup production data if database don't exist!
     try {
         await setupDatabase(process.env.SQL_DATABASE);
-        await setupTablesAndData('bodypart',BODYPART_DEF,bodyparts,'exercise',EXERCISE_DEF,exercises,'user',USER_DEF,users,'token',TOKEN_DEF,tokens);
+        await setupTablesAndData('bodypart',BODYPART_DEF,bodyparts,
+                                'exercise',EXERCISE_DEF,exercises,
+                                'user',USER_DEF,users,
+                                'token',TOKEN_DEF,tokens,  
+                                'workout',WORKOUT_DEF,workouts,
+                                'workout_exercise',WORKOUT_EXERCISE_DEF,workoutExcercises);
         console.log('setupProductionData: Setup production data done.');
     } catch(error) {
         console.log('setupProductionData: Setup production data failed, error = ',error);
