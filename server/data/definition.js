@@ -66,12 +66,15 @@ const WORKOUT_DEF =
  "CREATE TABLE workout_exercise (  \
   workoutid INT NOT NULL,  \
   exerciseid INT NOT NULL,  \
+  sequenceNumber INT NOT NULL, \
+  sets INT DEFAULT 1, \
+  reps INT DEFAULT 10, \
+  weight INT DEFAULT 0, \
   INDEX workout_excercise_workoutid_idx (workoutid ASC),  \
   INDEX workout_exercise_exerciseid_idx (exerciseid ASC),  \
   PRIMARY KEY (workoutid, exerciseid),  \
   CONSTRAINT workout_exercise_workoutid FOREIGN KEY (workoutid) REFERENCES workout (id) ON DELETE NO ACTION ON UPDATE NO ACTION,  \
   CONSTRAINT workout_exercise_exerciseid FOREIGN KEY (exerciseid) REFERENCES exercise (id) ON DELETE NO ACTION ON UPDATE NO ACTION  \
   );";
-
 
 module.exports = {BODYPART_DEF,EXERCISE_DEF,USER_DEF,TOKEN_DEF,WORKOUT_DEF,WORKOUT_EXERCISE_DEF};

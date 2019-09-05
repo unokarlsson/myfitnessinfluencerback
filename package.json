@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node server/server.js",
     "test": "export NODE_ENV=test || SET \"NODE_ENV=test\" && mocha server/**/*.test.js",
-    "docker-test": "mocha server/**/*.test.js"
+    "docker-test": "mocha server/**/*.test.js",
+    "basic-test" : "mocha server/utils/*.test.js"
   },
   "author": "",
   "license": "ISC",

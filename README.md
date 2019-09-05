@@ -10,3 +10,8 @@ $ docker-compose up
 
 To run docker-test
 $ docker-compose -f docker-compose-test.yml up
+
+Initial setup after cloning:
+1. Make sure the lineendings in wait-for-it.sh is unix style (\n)
+2. Run npm install
+3. Run docker-compose up

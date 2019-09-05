@@ -14,6 +14,8 @@ const bcrypt         = require('bcryptjs');
 const {authenticate} = require('./middleware/authenticate');
 const {mySqlPool}    = require('./data/databasePool');
 
+const {compareArray} = require('./utils/compareArray');
+
 const {generateHash,generateAuthToken,verifyAuthToken} = require('./data/security.js');
 
 let app = express();
@@ -99,7 +101,7 @@ app.post('/users', async (request,response) => {
     const username = request.body.username; // Must be at least 2 characters
     const password = request.body.password; // Must be at least 4 characters
     const email    = request.body.email;
-    const access   = "auth";
+    // const access   = "auth";
 
     if(username.length<2) {
         const error = `Username '${username}' is shorter than 2 characters!`;
@@ -289,17 +291,26 @@ app.get('/workouts', authenticate, async (request,response) => {
             const name         = workoutRows[workoutIndex].name;
             const description  = workoutRows[workoutIndex].description;
 
-            let exerciseRows = await mySqlPool.query(`SELECT exerciseid FROM workout_exercise WHERE workout_exercise.workoutid=${id}`);
+            let exerciseRows = await mySqlPool.query(`SELECT * FROM workout_exercise WHERE workout_exercise.workoutid=${id}`);
             // console.log('exerciseRows=',exerciseRows);
 
             const exercises = [];
+            // for(let exerciseIndex=0;exerciseIndex<exerciseRows.length;exerciseIndex++) {
+            //     const exerciseId = exerciseRows[exerciseIndex].exerciseid;
+            //     exercises[exerciseIndex] = exerciseId;
+            // }
+
             for(let exerciseIndex=0;exerciseIndex<exerciseRows.length;exerciseIndex++) {
-                const exerciseId = exerciseRows[exerciseIndex].exerciseid;
-                exercises[exerciseIndex] = exerciseId;
+                const exerciseid      = exerciseRows[exerciseIndex].exerciseid;
+                const sequenceNumber  = exerciseRows[exerciseIndex].sequenceNumber;
+                const sets            = exerciseRows[exerciseIndex].sets;
+                const reps            = exerciseRows[exerciseIndex].reps;
+                const weight          = exerciseRows[exerciseIndex].weight;
+                exercises[exerciseIndex] = {exerciseid,sequenceNumber,sets,reps,weight};
             }
 
             const workout = {id,name,description,exercises};
-            workouts[workoutIndex] = {workout};
+            workouts[workoutIndex] = workout;
         }
 
         response.send({workouts});
@@ -313,10 +324,10 @@ app.post('/workouts', authenticate, async (request,response) => {
     console.log('\nRunning POST /workouts');
     const name         = request.body.name;
     const description  = request.body.description;
-    const exercises   = request.body. exercises;
-    // console.log('name=',name);
-    // console.log('description=',description);
-    // console.log('exercieses=',exercises);
+    const exercises    = request.body.exercises;
+    console.log('name=',name);
+    console.log('description=',description);
+    console.log('exercieses=',exercises);
 
     try {
         const user = request.user;
@@ -331,14 +342,33 @@ app.post('/workouts', authenticate, async (request,response) => {
         const id = rows.insertId;
 
         // Insert the exercises
-        exercises.forEach(async (exerciseid) => {
+        exercises.forEach(async (exercise,index) => {
             try {
+                const exerciseid     = exercise.exerciseid
+                const sequenceNumber = exercise.sequenceNumber
+                let columnNames = ''
+                let columnValues = ''
+                const keys = Object.keys(exercise)
+                keys.forEach((key) => {
+                    if(key==='reps') {
+                        columnNames += ',reps'
+                        columnValues += `,${exercise.reps}`
+                    } else if(key==='sets') {
+                        columnNames += ',sets'
+                        columnValues += `,${exercise.sets}`
+                    } else if(key==='weight') {
+                        columnNames += ',weight'
+                        columnValues += `,${exercise.weight}`
+                    }
+                })
+                console.log(`${index} - columnNames  : ${columnNames}`)
+                console.log(`${index} - columnValues : ${columnValues}`)
+     
                 // console.log(`Inserted workout_exercise workoutid=${id} exerciseid=${exerciseid}`);
-                let rows = await mySqlPool.query(`INSERT INTO workout_exercise (workoutid,exerciseid) VALUES (${id},${exerciseid})`);
+                let rows = await mySqlPool.query(`INSERT INTO workout_exercise (workoutid,exerciseid,sequenceNumber${columnNames}) VALUES (${id},${exerciseid},${sequenceNumber}${columnValues})`);
                 if(rows.affectedRows!==1) {
                     throw `Could not insert workout_exercise workoutid=${id} exerciseid=${exerciseid}`;
                 }
-
             } catch (error) {
                 throw error;
             }
@@ -347,6 +377,134 @@ app.post('/workouts', authenticate, async (request,response) => {
         const workout = {id,name,description,exercises};
         response.send({workout});
     } catch (error) {
+        console.log(error);
+        response.status(400).send();
+    }
+});
+
+app.put('/workouts/:id', authenticate, async (request,response) => {
+    console.log('\nRunning PUT /workouts');
+    const id           = request.params.id;
+    const name         = request.body.name;
+    const description  = request.body.description;
+    const exercises    = request.body.exercises;
+    console.log('id=',id);
+    console.log('name=',name);
+    console.log('description=',description);
+    console.log('exercieses=',exercises);
+
+    try {
+        const user = request.user;
+
+        // Fetch the current workout
+        const workoutRows = await mySqlPool.query(`SELECT id,name,description from workout WHERE workout.userid=${user.id} AND workout.id=${id}`);
+        console.log('workoutRows=',workoutRows);
+        const currentWorkout = workoutRows[0];
+        const currentName = currentWorkout.name;
+        const currentDescription = currentWorkout.description;
+        console.log('currentName=',currentName);
+        console.log('currentDescription=',currentDescription);
+        
+        // Fetch exercises for workout
+        const currentExercises = await mySqlPool.query(`SELECT * FROM workout_exercise WHERE workout_exercise.workoutid=${id}`);
+        console.log('currentExercises=',currentExercises);
+
+        // Compare workout data and if needed update
+        let nameDescriptionChanged = false;
+        if(name !== currentName) {
+            nameDescriptionChanged = true;
+        }
+        if(description !== currentDescription) {
+            nameDescriptionChanged = true;
+        }
+
+        if(nameDescriptionChanged) {
+            const rows = await mySqlPool.query(`UPDATE workout SET (name='${name}',description='${description}') WHERE workout.id=${id}`);
+            if(rows.affectedRows!==1) {
+                throw `Could not update workout with name='${name}' description='${description}'`;
+            }
+        }
+
+        // HANDLE THESE CASES
+        // added exercises
+        // deleted exercises
+        // changed exercises
+
+        const compareResult = compareArray(exercises, currentExercises);
+        console.log('compareResult.addExercises     = ',compareResult.addExercises)
+        console.log('compareResult.deleteExercises  = ',compareResult.deleteExercises)
+        console.log('compareResult.changeExercises  = ',compareResult.changeExercises)
+        
+        // Loop through addExercises and insert exercises into database
+        compareResult.addExercises.forEach(async (exercise,index) => {
+            // TODO: What should the frontend send for sets, reps and weight if nothing is entered?
+            const exerciseid     = exercise.exerciseid
+            const sequenceNumber = exercise.sequenceNumber
+            let columnNames = ''
+            let columnValues = ''
+            const keys = Object.keys(exercise)
+            keys.forEach((key) => {
+                if(key==='reps') {
+                    columnNames += ',reps'
+                    columnValues += `,${exercise.reps}`
+                } else if(key==='sets') {
+                    columnNames += ',sets'
+                    columnValues += `,${exercise.sets}`
+                } else if(key==='weight') {
+                    columnNames += ',weight'
+                    columnValues += `,${exercise.weight}`
+                }
+            })
+            console.log(`${index} - columnNames  : ${columnNames}`)
+            console.log(`${index} - columnValues : ${columnValues}`)
+
+            let rows = await mySqlPool.query(`INSERT INTO workout_exercise (workoutid,exerciseid,sequenceNumber${columnNames}) VALUES (${id},${exerciseid},${sequenceNumber}${columnValues})`);
+            if(rows.affectedRows!==1) {
+                throw `Could not insert workout_exercise with workoutid=${id} exerciseid=${exerciseid}`;
+            }
+        })
+
+        // Loop through deleteExercises and delete exercises from database
+        compareResult.deleteExercises.forEach(async exercise => {
+            let rows = await mySqlPool.query(`DELETE FROM workout_exercise WHERE workoutid=${id} AND exerciseid=${exercise.exerciseid}`);
+            if(rows.affectedRows!==1) {
+                throw `Could not delete workout_exercise with workoutid='${id}' and execiseid=${exercise.exerciseid}`;
+            }
+        })
+
+        // Loop through changeExercises and update exercises in database
+        compareResult.changeExercises.forEach(async exercise => {
+            const rows = await mySqlPool.query(`UPDATE workout_exercise SET sequenceNumber=${exercise.sequenceNumber},reps=${exercise.reps},sets=${exercise.sets},weight=${exercise.weight} WHERE workoutid=${id} AND exerciseid=${exercise.exerciseid}`);
+            if(rows.affectedRows!==1) {
+                throw `Could not update workout_exercise with set sequenceNumber=${exercise.sequenceNumber},reps=${exercise.reps},sets=${exercise.sets},weight=${exercise.weight} where workoutid=${id} AND exerciseid=${exercise.exerciseid}`;
+            }
+        })
+
+        // TODO: Check what is best practise for PUT in API design.
+        const workout = {id,name,description,exercises};
+        response.send({workout});
+    } catch (error) {
+        console.log(error);
+        response.status(400).send();
+    }
+});
+
+app.delete('/workouts/:id', async (request, response) => {
+    console.log('\nRunning DELETE /workoutst/:id');
+    const workoutId = request.params.id;
+    console.log('workoutId=',workoutId);
+    try {
+        // Delete workout exercises
+        await mySqlPool.query(`DELETE FROM workout_exercise WHERE workoutid=${workoutId}`);
+
+        // Delete workout
+        const rows = await mySqlPool.query(`DELETE FROM workout WHERE id=${workoutId}`);
+        if(rows.affectedRows===0) {
+            return response.status(400).send();
+        }
+        // TODO: What is good practise to return?
+        response.status(200).send();
+    } catch(error) {
         console.log(error);
         response.status(400).send();
     }

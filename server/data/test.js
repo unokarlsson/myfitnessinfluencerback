@@ -60,10 +60,12 @@ const workouts = [{
 
 const workoutExcercises = [{
     workoutid: 1,
-    exerciseid: 1
+    exerciseid: 1,
+    sequenceNumber: 1
 },{
     workoutid: 1,
-    exerciseid: 3
+    exerciseid: 3,
+    sequenceNumber: 2
 }];
 
 
